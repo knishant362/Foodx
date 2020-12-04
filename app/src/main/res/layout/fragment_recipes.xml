@@ -6,14 +6,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/lightGray"
-    tools:context=".RecipesFragment">
+    tools:context=".ui.fragments.recipes.RecipesFragment">
 
     <com.todkars.shimmer.ShimmerRecyclerView
-        android:id="@+id/shimmer_recycler_view"
+        android:id="@+id/recycler_view"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
+        app:shimmer_recycler_layout="@layout/placeholder_row_layout"
+        tools:itemCount="3"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -40,26 +42,28 @@
         android:id="@+id/img_error"
         android:layout_width="90dp"
         android:layout_height="90dp"
+        android:alpha="0.5"
         android:src="@drawable/ic_sad"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.37"
-        android:alpha="0.5"/>
+        app:layout_constraintVertical_bias="0.37" />
 
     <TextView
         android:id="@+id/txt_error"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
+        android:alpha="0.5"
         android:text="No Internet Connection"
         android:textStyle="bold"
-        android:alpha="0.5"
         app:layout_constraintEnd_toEndOf="@+id/img_error"
         app:layout_constraintStart_toStartOf="@+id/img_error"
-        app:layout_constraintTop_toBottomOf="@+id/img_error" />
+        app:layout_constraintTop_toBottomOf="@+id/img_error"
+        android:visibility="invisible"/>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
