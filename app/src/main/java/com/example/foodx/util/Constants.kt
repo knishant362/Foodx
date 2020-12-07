@@ -1,4 +1,4 @@
-package com.example.foodx.models
+package com.example.foodx.util
 
 class Constants {
 

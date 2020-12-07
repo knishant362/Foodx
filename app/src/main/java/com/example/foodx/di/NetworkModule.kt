@@ -1,7 +1,7 @@
 package com.example.foodx.di
 
-import com.example.foodx.models.Constants.Companion.BASE_URL
-import com.example.foodx.models.FoodRecipesApi
+import com.example.foodx.util.Constants.Companion.BASE_URL
+import com.example.foodx.data.network.FoodRecipesApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
