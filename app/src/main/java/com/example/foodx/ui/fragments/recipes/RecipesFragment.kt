@@ -1,4 +1,4 @@
-package com.example.foodx.ui.fragments.recipes
+ package com.example.foodx.ui.fragments.recipes
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -8,21 +8,30 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.foodx.MainViewModel
+import com.example.foodx.viewmodels.MainViewModel
 import com.example.foodx.R
 import com.example.foodx.adapters.RecipesAdapter
 import com.example.foodx.util.Constants.Companion.API_KEY
 import com.example.foodx.util.NetworkResult
+import com.example.foodx.viewmodels.RecipesViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.fragment_recipes.view.*
-import kotlin.system.measureTimeMillis
 
-@AndroidEntryPoint
+ @AndroidEntryPoint
 class RecipesFragment : Fragment() {
 
     private lateinit var mView: View
     private lateinit var mMainViewModel : MainViewModel
-    private val mAdapter by lazy { RecipesAdapter() }
+    private val mAdapter by lazy { RecipesAdapter()}
+     private lateinit var mRecipesViewModel : RecipesViewModel
+
+     override fun onCreate(savedInstanceState: Bundle?) {
+         super.onCreate(savedInstanceState)
+
+         mMainViewModel = ViewModelProvider(requireActivity()).get(MainViewModel::class.java)
+         mRecipesViewModel = ViewModelProvider(requireActivity()).get(RecipesViewModel::class.java)
+
+     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -30,8 +39,6 @@ class RecipesFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment``
         mView = inflater.inflate(R.layout.fragment_recipes, container, false)
-
-        mMainViewModel = ViewModelProvider(requireActivity()).get(MainViewModel::class.java)
 
 
         setUpRecyclerView()
@@ -63,22 +70,10 @@ class RecipesFragment : Fragment() {
     }
 
     private fun requestApiData(){
-        mMainViewModel.getRecipes(applyQueries())
+        mMainViewModel.getRecipes(mRecipesViewModel.applyQueries())
     }
 
-    private fun applyQueries(): Map<String, String> {
 
-        val queries : HashMap<String, String> = HashMap()
-
-        queries["number"] = "50"
-        queries["apiKey"] = API_KEY
-        queries["type"] = "snack"
-        queries["diet"] = "vegan"
-        queries["addRecipeInformation"] = "true"
-        queries["fillIngredients"] = "true"
-
-        return queries
-    }
 
     private fun setUpRecyclerView() {
         mView.recycler_view.adapter = mAdapter
