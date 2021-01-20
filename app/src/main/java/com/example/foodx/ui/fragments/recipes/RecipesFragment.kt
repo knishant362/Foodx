@@ -1,94 +1,132 @@
  package com.example.foodx.ui.fragments.recipes
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.observe
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.foodx.viewmodels.MainViewModel
 import com.example.foodx.R
 import com.example.foodx.adapters.RecipesAdapter
-import com.example.foodx.util.Constants.Companion.API_KEY
+import com.example.foodx.databinding.FragmentRecipesBinding
 import com.example.foodx.util.NetworkResult
+import com.example.foodx.util.observeOnce
 import com.example.foodx.viewmodels.RecipesViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.fragment_recipes.view.*
+import kotlinx.coroutines.launch
 
- @AndroidEntryPoint
+
+@AndroidEntryPoint
 class RecipesFragment : Fragment() {
 
-    private lateinit var mView: View
-    private lateinit var mMainViewModel : MainViewModel
-    private val mAdapter by lazy { RecipesAdapter()}
-     private lateinit var mRecipesViewModel : RecipesViewModel
+    private val args by navArgs<RecipesFragmentArgs>()
 
-     override fun onCreate(savedInstanceState: Bundle?) {
-         super.onCreate(savedInstanceState)
+    private var _binding: FragmentRecipesBinding? = null
+    private val binding get() = _binding!!
 
-         mMainViewModel = ViewModelProvider(requireActivity()).get(MainViewModel::class.java)
-         mRecipesViewModel = ViewModelProvider(requireActivity()).get(RecipesViewModel::class.java)
+    private lateinit var mainViewModel: MainViewModel
+    private lateinit var recipesViewModel: RecipesViewModel
+    private val mAdapter by lazy { RecipesAdapter() }
 
-     }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        mainViewModel = ViewModelProvider(requireActivity()).get(MainViewModel::class.java)
+        recipesViewModel = ViewModelProvider(requireActivity()).get(RecipesViewModel::class.java)
+    }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+            inflater: LayoutInflater, container: ViewGroup?,
+            savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment``
-        mView = inflater.inflate(R.layout.fragment_recipes, container, false)
+        // Inflate the layout for this fragment
+        _binding = FragmentRecipesBinding.inflate(inflater, container, false)
+        binding.lifecycleOwner = this
+        binding.mainViewModel = mainViewModel
 
+        setupRecyclerView()
+        readDatabase()
 
-        setUpRecyclerView()
-        requestApiData()
+        binding.recipesFab.setOnClickListener {
+            findNavController().navigate(R.id.action_recipesFragment_to_recipesBottomSheet)
+        }
 
-        mMainViewModel.recipesResponse.observe(viewLifecycleOwner){ response ->
-            when(response){
+        return binding.root
+    }
 
+    private fun setupRecyclerView() {
+        binding.recyclerview.adapter = mAdapter
+        binding.recyclerview.layoutManager = LinearLayoutManager(requireContext())
+        showShimmerEffect()
+    }
+
+    private fun readDatabase() {
+        lifecycleScope.launch {
+            mainViewModel.readRecipes.observeOnce(viewLifecycleOwner, { database ->
+                if (database.isNotEmpty() && !args.backFromBottomSheet) {
+                    Log.d("RecipesFragment", "readDatabase called!")
+                    mAdapter.setData(database[0].foodRecipe)
+                    hideShimmerEffect()
+                } else {
+                    requestApiData()
+                }
+            })
+        }
+    }
+
+    private fun requestApiData() {
+        Log.d("RecipesFragment", "requestApiData called!")
+        mainViewModel.getRecipes(recipesViewModel.applyQueries())
+        mainViewModel.recipesResponse.observe(viewLifecycleOwner, { response ->
+            when (response) {
                 is NetworkResult.Success -> {
                     hideShimmerEffect()
-                    response.data?.let {
-                        mAdapter.setData(it)
-                    }
+                    response.data?.let { mAdapter.setData(it) }
                 }
-
                 is NetworkResult.Error -> {
                     hideShimmerEffect()
-                    Toast.makeText(requireContext() , response.message.toString() , Toast.LENGTH_SHORT).show()
+                    loadDataFromCache()
+                    Toast.makeText(
+                            requireContext(),
+                            response.message.toString(),
+                            Toast.LENGTH_SHORT
+                    ).show()
                 }
-
                 is NetworkResult.Loading -> {
                     showShimmerEffect()
                 }
-
             }
+        })
+    }
+
+    private fun loadDataFromCache() {
+        lifecycleScope.launch {
+            mainViewModel.readRecipes.observe(viewLifecycleOwner, {database->
+                if (database.isNotEmpty()) {
+                    mAdapter.setData(database[0].foodRecipe)
+                }
+            })
         }
-
-        return mView
     }
 
-    private fun requestApiData(){
-        mMainViewModel.getRecipes(mRecipesViewModel.applyQueries())
+    private fun showShimmerEffect() {
+        binding.recyclerview.showShimmer()
     }
 
-
-
-    private fun setUpRecyclerView() {
-        mView.recycler_view.adapter = mAdapter
-        mView.recycler_view.layoutManager = LinearLayoutManager(requireContext())
+    private fun hideShimmerEffect() {
+        binding.recyclerview.hideShimmer()
     }
 
-
-    private fun showShimmerEffect () {
-        mView.recycler_view.showShimmer()
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
     }
-
-    private fun hideShimmerEffect () {
-        mView.recycler_view.hideShimmer()
-    }
-
-
 
 }

@@ -13,45 +13,46 @@ class RecipesRowBinding {
 
     companion object {
 
-        @BindingAdapter("loadImage")
+        @BindingAdapter("loadImageFromUrl")
         @JvmStatic
-        fun loadImage (imageView : ImageView , url : String) {
-            imageView.load(url) {
+        fun loadImageFromUrl(imageView: ImageView, imageUrl: String) {
+            imageView.load(imageUrl) {
                 crossfade(600)
+                error(R.drawable.error_placeholder)
             }
         }
 
-        @BindingAdapter("setNoOfLikes")
+        @BindingAdapter("setNumberOfLikes")
         @JvmStatic
-        fun setNoOfLikes ( textView : TextView , likes : Int) {
-           textView.text = likes.toString()
+        fun setNumberOfLikes(textView: TextView, likes: Int){
+            textView.text = likes.toString()
         }
 
-        @BindingAdapter("setCookTime")
+        @BindingAdapter("setNumberOfMinutes")
         @JvmStatic
-        fun setCookTime ( textView: TextView , time : Int) {
-            textView.text = time.toString()
+        fun setNumberOfMinutes(textView: TextView, minutes: Int){
+            textView.text = minutes.toString()
         }
 
-        @BindingAdapter("checkVegan")
+        @BindingAdapter("applyVeganColor")
         @JvmStatic
-        fun checkVegan ( view: View , vegan : Boolean) {
-            if(vegan) {
-                when(view) {
+        fun applyVeganColor(view: View, vegan: Boolean) {
+            if(vegan){
+                when(view){
                     is TextView -> {
                         view.setTextColor(
-                                ContextCompat.getColor(
-                                        view.context,
-                                        R.color.green
-                                )
+                            ContextCompat.getColor(
+                                view.context,
+                                R.color.green
+                            )
                         )
                     }
                     is ImageView -> {
                         view.setColorFilter(
-                                ContextCompat.getColor(
-                                        view.context,
-                                        R.color.green
-                                )
+                            ContextCompat.getColor(
+                                view.context,
+                                R.color.green
+                            )
                         )
                     }
                 }
