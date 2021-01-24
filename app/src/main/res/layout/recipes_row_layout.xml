@@ -14,7 +14,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
-        android:layout_marginBottom="4dp">
+        android:layout_marginBottom="4dp"
+        onRecipeClickListener="@{result}">
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/row_cardView"
@@ -71,7 +72,7 @@
                     android:layout_marginTop="12dp"
                     android:ellipsize="end"
                     android:maxLines="3"
-                    android:text="@{result.summary}"
+                    parseHtml="@{result.summary}"
                     android:textColor="@color/darkGray"
                     app:layout_constraintEnd_toEndOf="@+id/title_textView"
                     app:layout_constraintStart_toStartOf="@+id/title_textView"
